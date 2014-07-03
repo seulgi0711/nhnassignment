@@ -4,12 +4,12 @@
   
   <servlet>
   	<servlet-name>VisitorList</servlet-name>
-  	<servlet-class>spms.servlets.VisitorListServlet</servlet-class>
+  	<servlet-class>servlets.VisitorListServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
   	<servlet-name>VisitorList</servlet-name>
-  	<url-pattern>/visitor/list</url-pattern>
+  	<url-pattern>/visitor/controller</url-pattern>
   </servlet-mapping>
   
   <welcome-file-list>

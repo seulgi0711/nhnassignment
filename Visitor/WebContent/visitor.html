@@ -2,23 +2,57 @@
 <html>
 <head>
 <meta charset="EUC-KR">
-<title> Visitor </title>
+<title>Visitor</title>
+<script type="text/javascript" src="jquery-2.1.1.js"></script>
+<script>
+	$(document).ready(function(){
+		var writeBtn = $('#write');
+		var GET_COUNT = 3;
+		var lastId = 0;
+		
+		writeBtn.click(function(){
+			
+			$.ajax({
+			            url:"/visitor/controller",
+			            type:"POST",
+			            dataType:'json',
+			            data: {action: GET_COUNT},
+			            success:function(data){
+			                // codes....
+			            },
+
+
+			        });
+			
+
+//			$.post(
+//					"WRITE",
+//					'6',
+//					$('#email').val(),
+//					$('#password').val(),
+//					$('#message').val(),
+//					null,
+//					null,
+				});
+	});
+</script>
 </head>
 <body>
-	<h1> Visitor </h1><br>
+	<h1>Visitor</h1>
+	<br>
 	<form action="write" method="post">
 		<table>
-		<tr>
-			<td> E-mail : </td>
-			<td> <input type="text" name="email"> </td> 
-		</tr>
-		<tr>
-			<td> Password : </td>
-			<td> <input type="password" name="password"><br> </td> 
-		</tr>
+			<tr>
+				<td>E-mail :</td>
+				<td><input type="text" name="email"></td>
+			</tr>
+			<tr>
+				<td>Password :</td>
+				<td><input type="password" name="password"><br></td>
+			</tr>
 		</table>
-		<textarea name="message" cols="45" rows="15"></textarea><br>
-		<input type="button" name="send" value="Write">
+		<textarea name="message" cols="45" rows="15"></textarea>
+		<br> <input type="button" id="write" value="Write">
 	</form>
 </body>
 </html>

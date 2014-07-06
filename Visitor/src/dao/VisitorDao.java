@@ -35,6 +35,8 @@ public class VisitorDao {
 			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("메시지 등록 실패 : " + e.getMessage());
+		} finally {
+			DbUtil.close(pstmt);
 		}
 		
 		return result;
@@ -74,7 +76,6 @@ public class VisitorDao {
 		ArrayList<Message> messageList = null;
 		
 		String sql = "select * from visitor order by id desc";
-		
 		
 		try {
 			stmt = conn.createStatement();
@@ -118,6 +119,27 @@ public class VisitorDao {
 		}
 		
 		return count;
+	}
+
+	public int update(Connection conn, Message msg){
+		PreparedStatement pstmt = null;
+		String sql = "update visitor set email=?, message=?, corDate=? where id=?";
+		int result = -1;
+		
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, msg.getEmail());
+			pstmt.setString(2, msg.getMessage());
+			pstmt.setString(3, msg.getCorDate());
+			pstmt.setString(4, msg.getId());
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("업데이트 실패" + e.getMessage());
+		} finally {
+			DbUtil.close(pstmt);
+		}
+		
+		return result;
 	}
 	
 	protected Message makeMessageFromResultSet(ResultSet rs){

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>방명록 수정</title>
+<script type="text/javascript" src="jquery-2.1.1.js"></script>
+<script>
+	var queryString = new Array();
+	
+	function validateEmail(email) {
+		var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+		  if( !emailReg.test(email)) {
+		    return false;
+		  } else {
+		    return true;
+		  }
+	}
+	
+	$(document).ready(function(){
+	    if (queryString.length == 0) {
+	        if (window.location.search.split('?').length > 1) {
+	            var params = window.location.search.split('?')[1].split('&');
+	            for (var i = 0; i < params.length; i++) {
+	                var key = params[i].split('=')[0];
+	                var value = decodeURIComponent(params[i].split('=')[1]);
+	                queryString[key] = value;
+	            }
+	        }
+	    }
+	    
+	    if (queryString["id"] != null) {
+	    	var msg = new Object();
+			msg.action = '4';
+			msg.id = queryString["id"];
+			
+			console.log(msg.id);
+			
+	        var jsonData = JSON.stringify(msg);
+			$.ajax({
+				type:"POST",
+				dataType:'json',
+				url:"/Visitor/visitor/controller",
+				async:true,
+				data: {
+					json: jsonData
+				},
+				success:function(data){
+					$('#id').html(data.db[0].id);
+					$('#curDate').html(data.db[0].curDate);
+					$('#corDate').html(data.db[0].corDate);
+					$('#email').attr({value:data.db[0].email});
+					$('#message').text(data.db[0].message);
+				}
+			});
+	    }
+	    
+	    var corBtn = $('#correct');
+		corBtn.click(function(){
+			if ($('#email').val() == "" || $('#password').val() == "" || $('#message').val() == ""){
+				alert("이메일, 비밀번호, 메시지 내용을 모두 입력해 주세요.")
+				return 0;
+			}
+			
+			if (validateEmail($('#email').val()) == false){
+				alert("유효하지 않은 이메일 형식입니다.");
+				return 0;
+			}
+			
+			var msg = new Object();
+			msg.action = '2';
+			msg.id = queryString["id"];
+			msg.email = $('#email').val();
+			msg.password = $('#password').val();
+			msg.message = $('#message').val();
+	        msg.corDate = getTime();
+	        
+	        var jsonData = JSON.stringify(msg);
+	        
+	        $.ajax({
+	        	type:"POST",
+				dataType:'json',
+				async:true,
+				url:"/Visitor/visitor/controller",
+				data: {
+					json: jsonData
+				},
+				success:function(data){
+					if (data.db[0].id == "fail"){
+						alert("비밀번호가 일치하지 않습니다.");
+						return 0;
+					} else if(data.db[0].id == "email"){
+						alert("유효하지 않은 이메일 형식입니다.");
+						return 0;
+					} else {
+						console.log("뭔데!!");
+						alert("수정 되었습니다.");
+						var url = "visitor.html"
+					    location.href = url;
+					}
+				}
+	        });
+		});
+	    
+	    function getTime(){
+			var now = new Date();                                                  // 현재시간
+            var nowTime = now.getFullYear() + "년 " +
+            			  (now.getMonth()+1) + "월 " +
+            			  now.getDate() + "일 " +
+            			  now.getHours() + "시 " +
+            			  now.getMinutes() + "분 " +
+            			  now.getSeconds() + "초 ";
+			
+			return nowTime;
+		}
+	    
+	});
+	
+	
+	
+	
+</script>
+</head>
+<body>
+	<div id="form" style="border-width:2px; border-style:solid; border-color:#ffffff; width:950px">
+		<table cellspacing="10">
+			<tr>
+				<th> 글번호 : </th> <td id="id"><span id="id">111</span></td><td width="200"></td>
+			</tr>
+			<tr>
+				<th> 작성일 : </th> <td colspan="2" id="curDate"><span id="curDate"> 222 </span> </td>
+				<th> 수정일 : </th> <td colspan="2" id="corDate"><span id="corDate"> 222 </span> </td>
+			</tr>
+			<tr>
+				<th> 이메일 : </th> <td colspan="2"> <input type="text" size="35" id="email"> </td>
+				<th> 비밀번호 : </th> <td width="100"> <input type="password" id="password"> </td><td width="100"></td>
+			</tr>
+			<tr>
+				<th colspan="7"> 내용 </th>
+			</tr>
+			<tr>
+				<td colspan="7"> <textarea cols="100" rows="15" id="message"></textarea></td>
+			</tr>
+		</table>
+		</td><td> <button id="correct">수정</button>
+	</div>
+</body>
+</html>

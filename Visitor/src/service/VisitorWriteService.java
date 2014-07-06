@@ -5,21 +5,22 @@ import java.sql.Connection;
 import model.Message;
 import dao.VisitorDao;
 
-public class VisitorWriteService {
+public class VisitorWriteService {	
 //	public static void main(String args[]){
-//		VisitorWriteService tmp2 = new VisitorWriteService();
 //		Message msg = new Message();
-//
-//		msg.setId("5");
-//		msg.setEmail("TEST@TEST.COM");
-//		msg.setPassword("testpass");
-//		msg.setMessage("testing hahaha");
-//		msg.setCurDate(null);
-//		msg.setCorDate(null);
-//
-//		tmp2.write(msg);
+//		Connection conn = null;
+//		VisitorDao visitorDao = new VisitorDao();
+//		
+//		
+//		conn = DbUtil.getConnection();
+//		
+//		msg.setId("15");
+//		msg.setEmail("correct");
+//		msg.setPassword("1898170");
+//		msg.setMessage("cor~");
+//		
+//		visitorDao.update(conn, msg);
 //	}
-	
 	public void write(Message msg){
 		Connection conn = null;
 		
@@ -27,6 +28,17 @@ public class VisitorWriteService {
 		VisitorDao visitorDao = new VisitorDao();
 		
 		visitorDao.insert(conn, msg);
+		
+		DbUtil.close(conn);
+	}
+	
+	public void update(Message msg){
+		Connection conn = null;
+		
+		conn = DbUtil.getConnection();
+		VisitorDao visitorDao = new VisitorDao();
+		
+		System.out.println("업데이트 결과 : " + visitorDao.update(conn, msg));
 		
 		DbUtil.close(conn);
 	}

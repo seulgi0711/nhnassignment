@@ -5,36 +5,150 @@
 <title>Visitor</title>
 <script type="text/javascript" src="jquery-2.1.1.js"></script>
 <script>
+	var lastId = 0;
+	
+	function removeById(idx){
+		var url = "edit.html?id=" + encodeURIComponent(idx);
+		location.href = url;
+	}
+	
+	function validateEmail(email) {
+		var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+		  if( !emailReg.test(email)) {
+		    return false;
+		  } else {
+		    return true;
+		  }
+	}
+	
 	$(document).ready(function(){
 		var writeBtn = $('#write');
-		var GET_COUNT = 3;
-		var lastId = 0;
+		
+		getDbList();
 		
 		writeBtn.click(function(){
+			var count = -1;
+			var cntMsg = new Object();
 			
+			if ($('#email').val() == "" || $('#password').val() == "" || $('#message').val() == ""){
+				alert("이메일, 비밀번호, 메시지 내용을 모두 입력해 주세요.")
+				return 0;
+			}
+			
+			if (validateEmail($('#email').val()) == false){
+				alert("유효하지 않은 이메일 형식입니다.");
+				return 0;
+			}
+			
+			cntMsg.action = 3;
+			
+	        var jsonData = JSON.stringify(cntMsg);
 			$.ajax({
-			            url:"/visitor/controller",
-			            type:"POST",
-			            dataType:'json',
-			            data: {action: GET_COUNT},
-			            success:function(data){
-			                // codes....
-			            },
-
-
-			        });
+				type:"POST",
+				dataType:'json',
+				async:true,
+				url:"/Visitor/visitor/controller",
+				data: {
+					json: jsonData
+				},
+				success:function(data){
+					lastId = data;
+					
+					var msg = new Object();
+					msg.action = '1';
+					msg.id = lastId + 1;
+					msg.email = $('#email').val();
+					msg.password = $('#password').val();
+		            msg.message = $('#message').val();
+		            msg.curDate = getTime();
+		            msg.corDate = '';
+		            
+		            var jsonData = JSON.stringify(msg);
+		            
+		            $.ajax({
+		            	type:"POST",
+						dataType:'json',
+						async:true,
+						url:"/Visitor/visitor/controller",
+						data: {
+							json: jsonData
+						},
+						success:function(data){
+							if (data.db[0].id == "emailIncorrect"){
+								alert("유효하지 않은 이메일 형식입니다.");
+								return 0;
+							}
+							var el = $('#list');
+							
+							console.dir(data);
+							$('#empty').remove();
+							
+							el.prepend('<div style="border-width:5px;border-style:solid;border-color:#3300ff;width:670px" >' +
+									  '<table cellspacing="10"><tr>' +
+									  '<th width="70"> 글번호 : </th> <td width="50">' + data.db[0].id + '</td>' +
+									  '<th width="70"> 작성일 : </th> <td width="250">' + data.db[0].curDate + '</td></tr>' +
+									  '<tr><th width="70"> 이메일 : </th> <td width="250">' + data.db[0].email + '</td>' +
+									  '<td> <button onclick="removeById('+data.db[0].id+');">수정하기 </button> </td>' +
+									  '</tr>' +
+									  '<tr><th colspan="5"> 내용 </th></tr>' +
+									  '<tr><td colspan="5">' + data.db[0].message +'</td>' +
+									  "</tr></table></div><br><br>");
+						}
+		            });
+				},
+			});
 			
-
-//			$.post(
-//					"WRITE",
-//					'6',
-//					$('#email').val(),
-//					$('#password').val(),
-//					$('#message').val(),
-//					null,
-//					null,
-				});
+			function getTime(){
+				var now = new Date();                                                  // 현재시간
+	            var nowTime = now.getFullYear() + "년 " +
+	            			  (now.getMonth()+1) + "월 " +
+	            			  now.getDate() + "일 " +
+	            			  now.getHours() + "시 " +
+	            			  now.getMinutes() + "분 " +
+	            			  now.getSeconds() + "초 ";
+				
+				return nowTime;
+			}
+		});
 	});
+	
+	function getDbList(){
+		var msg = new Object();
+		msg.action = '0';
+		
+        var jsonData = JSON.stringify(msg);
+		$.ajax({
+			type:"POST",
+			dataType:'json',
+			url:"/Visitor/visitor/controller",
+			async:true,
+			data: {
+				json: jsonData
+			},
+			success:function(data){
+				var el = $('#list');
+				console.dir(el);
+				console.dir(data);
+				
+				if (data.dblist.length == 0){
+					el.append("<div id='empty'>저장된 방명록이 없습니다.</div>");
+				} else {
+					for (var i = 0; i < data.dblist.length; i++){
+					el.append('<div style="border-width:5px;border-style:solid;border-color:#3300ff;width:670px" >' +
+							  '<table cellspacing="10"><tr>' +
+							  '<th width="70"> 글번호 : </th> <td width="50">' + data.dblist[i].id + '</td>' +
+							  '<th width="70"> 작성일 : </th> <td width="250">' + data.dblist[i].curDate + '</td></tr>' +
+							  '<tr><th width="70"> 이메일 : </th> <td width="250">' + data.dblist[i].email + '</td>' +
+							  '<td> <button onclick="removeById('+data.dblist[i].id+');">수정하기 </button> </td>' +
+							  '</tr>' +
+							  '<tr><th colspan="5"> 내용 </th></tr>' +
+							  '<tr><td colspan="5">' + data.dblist[i].message +'</td>' +
+							  "</tr></table></div><br><br>");
+					}
+				}
+			}
+		});
+	}
 </script>
 </head>
 <body>
@@ -44,15 +158,17 @@
 		<table>
 			<tr>
 				<td>E-mail :</td>
-				<td><input type="text" name="email"></td>
+				<td><input type="text" id="email"></td>
 			</tr>
 			<tr>
 				<td>Password :</td>
-				<td><input type="password" name="password"><br></td>
+				<td><input type="password" id="password"><br></td>
 			</tr>
 		</table>
-		<textarea name="message" cols="45" rows="15"></textarea>
-		<br> <input type="button" id="write" value="Write">
+		<textarea id="message" cols="45" rows="15"></textarea>
+		<br> <input type="button" id="write" value="Write"> <br><br>
 	</form>
+	<div id="list">
+	</div>
 </body>
 </html>

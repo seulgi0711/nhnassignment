@@ -8,12 +8,6 @@ import model.Message;
 import dao.VisitorDao;
 
 public class VisitorGetService {
-//	public static void main(String args[]) {
-//		VisitorGetService tmp2 = new VisitorGetService();
-//		List<Message> tmp = null;
-//
-//		tmp = tmp2.getMessageList();
-//	}
 
 	public List<Message> getMessageList() {
 		Connection conn = null;
@@ -36,11 +30,24 @@ public class VisitorGetService {
 		return messageList;
 	}
 	
+	public Message getMessage(int id){
+		Connection conn = null;
+		VisitorDao visitorDao = new VisitorDao();
+		Message message = new Message();
+		
+		conn = DbUtil.getConnection();
+		message = visitorDao.select(conn, id);
+		
+		DbUtil.close(conn);
+		return message;
+	}
+	
 	public int getCount(){
 		Connection conn = null;
 		int count = -1;
 		VisitorDao visitorDao = new VisitorDao();
 		
+		conn = DbUtil.getConnection();
 		count = visitorDao.selectCount(conn);
 		
 		DbUtil.close(conn);
